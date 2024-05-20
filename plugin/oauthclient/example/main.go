@@ -1,136 +1,137 @@
-/*
- * @author           Thai Le <thaile.meetai@gmail.com>
- * @copyright       2024 Thai Le <thaile.meetai@gmail.com>
- * @license           Apache-2.0
- */
+// /*
+//  * @author           Thai Le <thaile.meetai@gmail.com>
+//  * @copyright       2024 Thai Le <thaile.meetai@gmail.com>
+//  * @license           Apache-2.0
+//  */
 
 package main
 
-import (
-	"github.com/gin-gonic/gin"
-	goservice "github.com/thailemeetai/go-sdk"
-	"github.com/thailemeetai/go-sdk/plugin/oauthclient"
-	"golang.org/x/oauth2/clientcredentials"
-	"net/http"
-)
+// import (
+// 	"net/http"
 
-var appClientConf = clientcredentials.Config{
-	ClientID:     "tada",
-	ClientSecret: "secret-cannot-tell",
-	Scopes:       []string{"root"},
-	TokenURL:     "http://localhost:3000/oauth2/token",
-}
+// 	"github.com/gin-gonic/gin"
+// 	goservice "github.com/thailemeetai/go-sdk"
+// 	"github.com/thailemeetai/go-sdk/plugin/oauthclient"
+// 	"golang.org/x/oauth2/clientcredentials"
+// )
 
-func main() {
-	service := goservice.New(
-		goservice.WithName("demo"),
-		goservice.WithVersion("1.0.0"),
-		goservice.WithInitRunnable(oauthclient.New("oauth", appClientConf)),
-	)
+// var appClientConf = clientcredentials.Config{
+// 	ClientID:     "tada",
+// 	ClientSecret: "secret-cannot-tell",
+// 	Scopes:       []string{"root"},
+// 	TokenURL:     "http://localhost:3000/oauth2/token",
+// }
 
-	_ = service.Init()
+// func main() {
+// 	service := goservice.New(
+// 		goservice.WithName("demo"),
+// 		goservice.WithVersion("1.0.0"),
+// 		goservice.WithInitRunnable(oauthclient.New("oauth", appClientConf)),
+// 	)
 
-	service.HTTPServer().AddHandler(func(engine *gin.Engine) {
-		engine.GET("/login", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			t, err := tc.PasswordCredentialsToken("admin", "Admin@2019")
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 	_ = service.Init()
 
-		engine.GET("/introspect", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			t, err := tc.Introspect("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOltdLCJlbWFpbCI6ImNvcmVAMjAwbGFiLmlvIiwiZXhwIjoxNTU2OTAyMzQ2LCJpYXQiOjE1NTQzMTAzNDYsImlzcyI6IiIsImp0aSI6IjI4ZmY1ZTI1LTY5NTgtNDhkZC05MGU5LWNiMDFjZjM5YjgwYSIsIm5iZiI6MTU1NDMxMDM0Niwic2NwIjpbIm9mZmxpbmUiXSwic3ViIjoiNWM5YjJhYzg3MzE3MWExN2Q1NzMyOGU4IiwidXNlcl9pZCI6IjVjOWIyYWM4NzMxNzFhMTdkNTczMjhlOCIsInVzZXJuYW1lIjoiYWRtaW4ifQ.YKrgfMyZ9Hs-RpUR6mTlENDcFAKrT2Pu7JrfE38bmSRFRMxleC48gEJArxy-1casJEQW_yW3Df9V-wKwGqK365VzV9T1aBdfxzOpU3GBRCq6YjaEx1d1SYPttZD02uOmVRu3zka-jm3225YkxYf6TXMRQ0xQbEg_RXUujE333sc")
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 	service.HTTPServer().AddHandler(func(engine *gin.Engine) {
+// 		engine.GET("/login", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			t, err := tc.PasswordCredentialsToken("admin", "Admin@2019")
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-		engine.GET("/create_user", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			// t, err := tc.CreateUser(fmt.Sprintf("a%d", rand.Int()), "123456")
-			username := "thaile"
-			email := "tada@gmail.com"
-			password := "123456"
+// 		engine.GET("/introspect", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			t, err := tc.Introspect("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOltdLCJlbWFpbCI6ImNvcmVAMjAwbGFiLmlvIiwiZXhwIjoxNTU2OTAyMzQ2LCJpYXQiOjE1NTQzMTAzNDYsImlzcyI6IiIsImp0aSI6IjI4ZmY1ZTI1LTY5NTgtNDhkZC05MGU5LWNiMDFjZjM5YjgwYSIsIm5iZiI6MTU1NDMxMDM0Niwic2NwIjpbIm9mZmxpbmUiXSwic3ViIjoiNWM5YjJhYzg3MzE3MWExN2Q1NzMyOGU4IiwidXNlcl9pZCI6IjVjOWIyYWM4NzMxNzFhMTdkNTczMjhlOCIsInVzZXJuYW1lIjoiYWRtaW4ifQ.YKrgfMyZ9Hs-RpUR6mTlENDcFAKrT2Pu7JrfE38bmSRFRMxleC48gEJArxy-1casJEQW_yW3Df9V-wKwGqK365VzV9T1aBdfxzOpU3GBRCq6YjaEx1d1SYPttZD02uOmVRu3zka-jm3225YkxYf6TXMRQ0xQbEg_RXUujE333sc")
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-			t, err := tc.CreateUser(&oauthclient.OAuthUserCreate{
-				Username: &username,
-				Email:    &email,
-				Password: &password,
-			})
+// 		engine.GET("/create_user", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			// t, err := tc.CreateUser(fmt.Sprintf("a%d", rand.Int()), "123456")
+// 			username := "thaile"
+// 			email := "tada@gmail.com"
+// 			password := "123456"
 
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 			t, err := tc.CreateUser(&oauthclient.OAuthUserCreate{
+// 				Username: &username,
+// 				Email:    &email,
+// 				Password: &password,
+// 			})
 
-		engine.GET("/update_user", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			// t, err := tc.CreateUser(fmt.Sprintf("a%d", rand.Int()), "123456")
-			username := "thaile"
-			email := "tada@gmail.com"
-			password := "123456"
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-			err := tc.UpdateUser("1", &oauthclient.OAuthUserUpdate{
-				Username: &username,
-				Email:    &email,
-				Password: &password,
-			})
+// 		engine.GET("/update_user", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			// t, err := tc.CreateUser(fmt.Sprintf("a%d", rand.Int()), "123456")
+// 			username := "thaile"
+// 			email := "tada@gmail.com"
+// 			password := "123456"
 
-			if err != nil {
-				context.JSON(http.StatusUnprocessableEntity, gin.H{"err": err})
-				return
-			}
+// 			err := tc.UpdateUser("1", &oauthclient.OAuthUserUpdate{
+// 				Username: &username,
+// 				Email:    &email,
+// 				Password: &password,
+// 			})
 
-			context.JSON(http.StatusOK, gin.H{"success": true})
+// 			if err != nil {
+// 				context.JSON(http.StatusUnprocessableEntity, gin.H{"err": err})
+// 				return
+// 			}
 
-		})
+// 			context.JSON(http.StatusOK, gin.H{"success": true})
 
-		engine.PUT("/update_user", func(c *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			username := "thaile"
-			email := "tada@gmail.com"
-			password := "123456"
+// 		})
 
-			err := tc.UpdateUser("1", &oauthclient.OAuthUserUpdate{
-				Username: &username,
-				Email:    &email,
-				Password: &password,
-			})
+// 		engine.PUT("/update_user", func(c *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			username := "thaile"
+// 			email := "tada@gmail.com"
+// 			password := "123456"
 
-			if err != nil {
-				c.JSON(http.StatusOK, gin.H{"err": err})
-				return
-			}
+// 			err := tc.UpdateUser("1", &oauthclient.OAuthUserUpdate{
+// 				Username: &username,
+// 				Email:    &email,
+// 				Password: &password,
+// 			})
 
-			c.JSON(http.StatusOK, gin.H{"success": true})
-		})
+// 			if err != nil {
+// 				c.JSON(http.StatusOK, gin.H{"err": err})
+// 				return
+// 			}
 
-		engine.GET("/create_user/gmail", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			t, err := tc.CreateUserWithEmail("tada@gmail.com")
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 			c.JSON(http.StatusOK, gin.H{"success": true})
+// 		})
 
-		engine.GET("/create_user/facebook", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			t, err := tc.CreateUserWithFacebook("12345", "tada@gmail.com")
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 		engine.GET("/create_user/gmail", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			t, err := tc.CreateUserWithEmail("tada@gmail.com")
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-		engine.GET("/create_user/apple", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			t, err := tc.CreateUserWithApple("12345", "tada@gmail.com")
-			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
-		})
+// 		engine.GET("/create_user/facebook", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			t, err := tc.CreateUserWithFacebook("12345", "tada@gmail.com")
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-		engine.GET("/change_password", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			err := tc.ChangePassword("5ca5b98f73171a20237053a3", "123456", "123456")
-			context.JSON(http.StatusOK, gin.H{"err": err})
-		})
+// 		engine.GET("/create_user/apple", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			t, err := tc.CreateUserWithApple("12345", "tada@gmail.com")
+// 			context.JSON(http.StatusOK, gin.H{"t": t, "err": err})
+// 		})
 
-		engine.GET("/delete_user", func(context *gin.Context) {
-			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
-			err := tc.DeleteUser("5ca5b98f73171a20237053a3")
-			context.JSON(http.StatusOK, gin.H{"err": err})
-		})
-	})
+// 		engine.GET("/change_password", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			err := tc.ChangePassword("5ca5b98f73171a20237053a3", "123456", "123456")
+// 			context.JSON(http.StatusOK, gin.H{"err": err})
+// 		})
 
-	_ = service.Start()
-}
+// 		engine.GET("/delete_user", func(context *gin.Context) {
+// 			tc := service.MustGet("oauth").(oauthclient.TrustedClient)
+// 			err := tc.DeleteUser("5ca5b98f73171a20237053a3")
+// 			context.JSON(http.StatusOK, gin.H{"err": err})
+// 		})
+// 	})
+
+// 	_ = service.Start()
+// }
