@@ -1,4 +1,4 @@
-module git.fpt.net/open-digital-architect/go-sdk
+module github.com/taimaifika/go-sdk
 
 go 1.23
 
