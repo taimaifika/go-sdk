@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.fpt.net/open-digital-architect/go-sdk/sdkcm"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/taimaifika/go-sdk/sdkcm"
 )
 
 func Recover(sc ServiceContext) gin.HandlerFunc {

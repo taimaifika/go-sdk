@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
+	"github.com/taimaifika/go-sdk/logger"
 	"gorm.io/gorm"
 )
 

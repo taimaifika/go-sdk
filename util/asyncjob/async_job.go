@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
+	"github.com/taimaifika/go-sdk/logger"
 )
 
 var ErrTaskFailed = errors.New("job has failed after many retries")

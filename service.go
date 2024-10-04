@@ -9,9 +9,9 @@ import (
 	"strings"
 	"syscall"
 
-	"git.fpt.net/open-digital-architect/go-sdk/httpserver"
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
 	"github.com/joho/godotenv"
+	"github.com/taimaifika/go-sdk/httpserver"
+	"github.com/taimaifika/go-sdk/logger"
 )
 
 const (

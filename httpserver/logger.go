@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/taimaifika/go-sdk/logger"
 )
 
 // A Logger Middleware for gin engine,
