@@ -3,8 +3,8 @@ package middleware
 import (
 	"context"
 
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
-	"git.fpt.net/open-digital-architect/go-sdk/sdkcm"
+	"github.com/taimaifika/go-sdk/logger"
+	"github.com/taimaifika/go-sdk/sdkcm"
 )
 
 type ServiceContext interface {

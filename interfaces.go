@@ -1,8 +1,8 @@
 package goservice
 
 import (
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/taimaifika/go-sdk/logger"
 )
 
 // Convenience option method for creating/initializing a service

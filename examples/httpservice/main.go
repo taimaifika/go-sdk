@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	goservice "git.fpt.net/open-digital-architect/go-sdk"
-	"git.fpt.net/open-digital-architect/go-sdk/sdkcm"
 	"github.com/gin-gonic/gin"
+	goservice "github.com/taimaifika/go-sdk"
+	"github.com/taimaifika/go-sdk/sdkcm"
 )
 
 func main() {

@@ -12,10 +12,10 @@ import (
 	"strings"
 	"sync"
 
-	"git.fpt.net/open-digital-architect/go-sdk/httpserver/middleware"
-	"git.fpt.net/open-digital-architect/go-sdk/logger"
-	"git.fpt.net/open-digital-architect/go-sdk/plugin/otel"
 	"github.com/gin-gonic/gin"
+	"github.com/taimaifika/go-sdk/httpserver/middleware"
+	"github.com/taimaifika/go-sdk/logger"
+	"github.com/taimaifika/go-sdk/plugin/otel"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
