@@ -37,8 +37,6 @@ type Service interface {
 	ServiceContext
 	// Name of the service
 	Name() string
-	// Version of the service
-	Version() string
 	// Gin HTTP Server wrapper
 	HTTPServer() HttpServer
 	// Init with options, they can be db connections or

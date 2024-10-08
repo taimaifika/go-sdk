@@ -3,7 +3,6 @@ package goservice
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -23,7 +22,6 @@ const (
 
 type service struct {
 	name         string
-	version      string
 	env          string
 	opts         []Option
 	subServices  []Runnable
@@ -52,12 +50,13 @@ func New(opts ...Option) Service {
 		opt(sv)
 	}
 
-	//// Http server
+	// Http server
 	httpServer := httpserver.New(sv.name)
 	sv.httpServer = httpServer
 
 	sv.subServices = append(sv.subServices, httpServer)
 
+	// Init flags
 	sv.initFlags()
 
 	if sv.name == "" {
@@ -79,10 +78,6 @@ func New(opts ...Option) Service {
 
 func (s *service) Name() string {
 	return s.name
-}
-
-func (s *service) Version() string {
-	return s.version
 }
 
 func (s *service) Init() error {
@@ -166,7 +161,7 @@ func (s *service) Stop() {
 		<-stopChan
 	}
 
-	//s.stopFunc()
+	s.stopFunc()
 	s.logger.Infoln("service stopped")
 }
 
@@ -210,11 +205,6 @@ func WithName(name string) Option {
 	return func(s *service) { s.name = name }
 }
 
-// Every deployment needs a specific version
-func WithVersion(version string) Option {
-	return func(s *service) { s.version = version }
-}
-
 // Service will write log data to file with this option
 func WithFileLogger() Option {
 	return func(s *service) {
@@ -233,7 +223,7 @@ func WithRunnable(r Runnable) Option {
 func WithInitRunnable(r PrefixRunnable) Option {
 	return func(s *service) {
 		if _, ok := s.initServices[r.GetPrefix()]; ok {
-			log.Fatal(fmt.Sprintf("prefix %s is duplicated", r.GetPrefix()))
+			panic(fmt.Sprintf("prefix %s is duplicated", r.GetPrefix()))
 		}
 
 		s.initServices[r.GetPrefix()] = r

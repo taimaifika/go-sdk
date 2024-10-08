@@ -89,7 +89,7 @@ func (gs *ginService) Configure() error {
 		}
 
 		// recovery middleware
-		// gs.router.Use(gin.Recovery())
+		gs.router.Use(gin.Recovery())
 
 		// panic logger middleware
 		gs.router.Use(middleware.PanicLogger())
