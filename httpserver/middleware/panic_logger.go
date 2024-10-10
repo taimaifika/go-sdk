@@ -3,14 +3,16 @@ package middleware
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/http/httputil"
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -44,7 +46,7 @@ func RecoveryWithWriter(out io.Writer) gin.HandlerFunc {
 						string([]byte{27, 91, 48, 109}),
 					)
 				}
-				//c.AbortWithStatus(http.StatusInternalServerError)
+				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
 		c.Next()

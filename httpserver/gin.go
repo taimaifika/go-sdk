@@ -2,20 +2,16 @@ package httpserver
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
-	"os/signal"
 	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/taimaifika/go-sdk/httpserver/middleware"
 	"github.com/taimaifika/go-sdk/logger"
-	"github.com/taimaifika/go-sdk/plugin/otel"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -41,7 +37,6 @@ type ginService struct {
 	Config
 	isEnabled bool
 	name      string
-	version   string
 
 	logger   logger.Logger
 	svr      *myHttpServer
@@ -50,6 +45,7 @@ type ginService struct {
 	handlers []func(*gin.Engine)
 }
 
+// New creates a new GinService.
 func New(name string) *ginService {
 	return &ginService{
 		name:     name,
@@ -58,22 +54,23 @@ func New(name string) *ginService {
 	}
 }
 
+// isGinService is a marker function to indicate that the service is a GinService.
 func (gs *ginService) Name() string {
 	return gs.name + "-gin"
 }
 
-func (gs *ginService) Version() string {
-	return gs.version
-}
-
+// InitFlags initializes the flags.
 func (gs *ginService) InitFlags() {
 	prefix := "gin"
-	flag.IntVar(&gs.Config.Port, prefix+"Port", defaultPort, "gin server Port. If 0 => get a random Port")
-	flag.StringVar(&gs.BindAddr, prefix+"addr", "", "gin server bind address")
-	flag.StringVar(&ginMode, "gin-mode", "", "gin mode")
-	flag.BoolVar(&ginNoLogger, "gin-no-logger", false, "disable default gin logger middleware")
+	flag.IntVar(&gs.Config.Port, prefix+"-port", defaultPort, "gin server Port. If 0 => get a random Port")
+	flag.StringVar(&gs.BindAddr, prefix+"-addr", "", "gin server bind address")
+	flag.StringVar(&ginMode, prefix+"-mode", "", "gin mode: debug, release, default is debug")
+
+	// Logger
+	flag.BoolVar(&ginNoLogger, prefix+"-no-logger", false, "disable default gin logger middleware, default is false")
 }
 
+// Configure configures the service.
 func (gs *ginService) Configure() error {
 	gs.logger = logger.GetCurrent().GetLogger("gin")
 
@@ -88,12 +85,13 @@ func (gs *ginService) Configure() error {
 			gs.router.Use(gin.Logger())
 		}
 
-		// recovery middleware
-		gs.router.Use(gin.Recovery())
+		// // recovery middleware (default)
+		// gs.router.Use(gin.Recovery())
 
-		// panic logger middleware
+		// recovery middleware (custom)
 		gs.router.Use(middleware.PanicLogger())
-		// otel middleware
+
+		// otelgin middleware
 		gs.router.Use(otelgin.Middleware(gs.name))
 	}
 
@@ -106,6 +104,7 @@ func (gs *ginService) Configure() error {
 	return nil
 }
 
+// formatBindAddr formats the bind address.
 func formatBindAddr(s string, p int) string {
 	if strings.Contains(s, ":") && !strings.Contains(s, "[") {
 		s = "[" + s + "]"
@@ -113,6 +112,7 @@ func formatBindAddr(s string, p int) string {
 	return fmt.Sprintf("%s:%d", s, p)
 }
 
+// Run starts the service.
 func (gs *ginService) Run() error {
 	if !gs.isEnabled {
 		return nil
@@ -137,19 +137,6 @@ func (gs *ginService) Run() error {
 
 	gs.logger.Infof("listen on %s...", lis.Addr().String())
 
-	// Handle SIGINT (CTRL+C) gracefully.
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-	// Set up OpenTelemetry.
-	otelShutdown, err := otel.SetupOTelSDK(ctx, gs.Name(), gs.Version())
-	if err != nil {
-		return err
-	}
-	// Handle shutdown properly so nothing leaks.
-	defer func() {
-		err = errors.Join(err, otelShutdown(context.Background()))
-	}()
-
 	// Start the server
 	err = gs.svr.Serve(lis)
 
@@ -159,18 +146,21 @@ func (gs *ginService) Run() error {
 	return err
 }
 
+// getPort returns the Port of the listener.
 func getPort(lis net.Listener) int {
 	addr := lis.Addr()
 	tcp, _ := net.ResolveTCPAddr(addr.Network(), addr.String())
 	return tcp.Port
 }
 
+// Port returns the Port of the service.
 func (gs *ginService) Port() int {
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
 	return gs.Config.Port
 }
 
+// Stop stops the service.
 func (gs *ginService) Stop() <-chan bool {
 	c := make(chan bool)
 
@@ -183,25 +173,35 @@ func (gs *ginService) Stop() <-chan bool {
 	return c
 }
 
+// URI returns the URI of the service.
 func (gs *ginService) URI() string {
 	return formatBindAddr(gs.BindAddr, gs.Config.Port)
 }
 
+// AddHandler adds a handler to the gin service.
 func (gs *ginService) AddHandler(hdl func(*gin.Engine)) {
 	gs.isEnabled = true
 	gs.handlers = append(gs.handlers, hdl)
 }
 
+// Reload reloads the service with the new config.
 func (gs *ginService) Reload(config Config) error {
 	gs.Config = config
 	<-gs.Stop()
 	return gs.Run()
 }
 
+// GetConfig returns the value of Config.
 func (gs *ginService) GetConfig() Config {
 	return gs.Config
 }
 
+// IsEnabled returns the value of isEnabled.
+func (gs *ginService) IsEnabled() bool {
+	return gs.isEnabled
+}
+
+// IsRunning returns true if the service is running.
 func (gs *ginService) IsRunning() bool {
 	return gs.svr != nil
 }

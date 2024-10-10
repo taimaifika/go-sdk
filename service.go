@@ -18,6 +18,8 @@ const (
 	StgEnv     = "stg"
 	PrdEnv     = "prd"
 	DefaultEnv = DevEnv
+
+	DefaultName = ""
 )
 
 type service struct {
@@ -31,7 +33,6 @@ type service struct {
 	httpServer   HttpServer
 	signalChan   chan os.Signal
 	cmdLine      *AppFlagSet
-	stopFunc     func()
 }
 
 func New(opts ...Option) Service {
@@ -71,7 +72,7 @@ func New(opts ...Option) Service {
 	sv.cmdLine = newFlagSet(sv.name, flag.CommandLine)
 	sv.parseFlags()
 
-	_ = loggerRunnable.Configure()
+	loggerRunnable.Configure()
 
 	return sv
 }
@@ -97,7 +98,6 @@ func (s *service) IsRegistered() bool {
 func (s *service) Start() error {
 	signal.Notify(s.signalChan, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	c := s.run()
-	//s.stopFunc = s.activeRegistry()
 
 	for {
 		select {
@@ -122,7 +122,11 @@ func (s *service) Start() error {
 }
 
 func (s *service) initFlags() {
+	// app environment
 	flag.StringVar(&s.env, "app-env", DevEnv, "Env for service. Ex: dev | stg | prd")
+
+	// app name
+	flag.StringVar(&s.name, "app-name", DefaultName, "Name of the service, important name is not empty")
 
 	for _, subService := range s.subServices {
 		subService.InitFlags()
@@ -161,7 +165,6 @@ func (s *service) Stop() {
 		<-stopChan
 	}
 
-	s.stopFunc()
 	s.logger.Infoln("service stopped")
 }
 

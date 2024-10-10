@@ -14,6 +14,7 @@ type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
+// Accept implements the Accept method in the Listener interface
 func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	tc, err := ln.AcceptTCP()
 	if err != nil {
@@ -24,14 +25,17 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	return tc, nil
 }
 
+// myHttpServer is a wrapper around http.Server that adds TCP keep-alive support
 type myHttpServer struct {
 	http.Server
 }
 
+// Serve accepts incoming connections on the Listener l, creating a new
 func (srv *myHttpServer) Serve(lis net.Listener) error {
 	return srv.Server.Serve(tcpKeepAliveListener{lis.(*net.TCPListener)})
 }
 
+// ServeTLS accepts incoming connections on the Listener l, creating a new Server with a TLS configuration
 func (srv *myHttpServer) ServeTLS(lis net.Listener, certFile, keyFile string) error {
 	return srv.Server.ServeTLS(tcpKeepAliveListener{lis.(*net.TCPListener)}, certFile, keyFile)
 }

@@ -9,14 +9,14 @@ import (
 	"github.com/spf13/cobra"
 
 	goservice "github.com/taimaifika/go-sdk"
+	"github.com/taimaifika/go-sdk/plugin/otel"
 )
 
 func newService() goservice.Service {
 	// New service
 	service := goservice.New(
-		goservice.WithName("go-sdk"),
+		goservice.WithInitRunnable(otel.NewOtelPlugin("otel")),
 	)
-
 	fmt.Println("Service Name:", service.Name())
 
 	return service
