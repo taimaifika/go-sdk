@@ -7,7 +7,7 @@ import (
 
 // MySqlDB Get MySQL DB connection
 // URI string
-// Ex: user:password@/db_name?charset=utf8&parseTime=True&loc=Local
+// Ex: user:password@tcp(localhost:3306)/dbname?charset=utf8&parseTime=True&loc=Local
 func MySqlDB(uri string) (db *gorm.DB, err error) {
 	return gorm.Open(mysql.Open(uri), &gorm.Config{})
 }

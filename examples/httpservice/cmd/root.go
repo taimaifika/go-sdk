@@ -9,13 +9,13 @@ import (
 	"github.com/spf13/cobra"
 
 	goservice "github.com/taimaifika/go-sdk"
-	"github.com/taimaifika/go-sdk/plugin/otel"
+	"github.com/taimaifika/go-sdk/plugin/sdkotel"
 )
 
 func newService() goservice.Service {
 	// New service
 	service := goservice.New(
-		goservice.WithInitRunnable(otel.NewOtelPlugin("otel")),
+		goservice.WithInitRunnable(sdkotel.NewOtelPlugin("otel")),
 	)
 	fmt.Println("Service Name:", service.Name())
 

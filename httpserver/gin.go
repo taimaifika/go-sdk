@@ -64,7 +64,7 @@ func (gs *ginService) InitFlags() {
 	prefix := "gin"
 	flag.IntVar(&gs.Config.Port, prefix+"-port", defaultPort, "gin server Port. If 0 => get a random Port")
 	flag.StringVar(&gs.BindAddr, prefix+"-addr", "", "gin server bind address")
-	flag.StringVar(&ginMode, prefix+"-mode", "", "gin mode: debug, release, default is debug")
+	flag.StringVar(&ginMode, prefix+"-mode", "", "gin mode: debug | release ; default is debug")
 
 	// Logger
 	flag.BoolVar(&ginNoLogger, prefix+"-no-logger", false, "disable default gin logger middleware, default is false")

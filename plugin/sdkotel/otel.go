@@ -1,4 +1,4 @@
-package otel
+package sdkotel
 
 import (
 	"context"
@@ -294,24 +294,26 @@ func (op *OtelPlugin) Name() string {
 	return op.name
 }
 
-// Configure configures the service.
-func (op *OtelPlugin) Configure() error {
-	// Check if the servicename is empty
-	if op.serviceName == "" {
-		return errors.New("otel service name is empty")
-	}
+// InitFlags initializes the flags.
+func (op *OtelPlugin) InitFlags() {
+	flag.BoolVar(&op.isEnabled, op.prefix+"-is-enabled", defaultIsEnabled, "Enable otel service")
 
-	// Check if the serviceversion is empty
-	if op.serviceVersion == "" {
-		return errors.New("otel service version is empty")
-	}
+	// otel attributes
+	// OTEL_SERVICE_NAME
+	flag.StringVar(&op.serviceName, op.prefix+"-service-name", defaultNameService, "The service name must be the same APP_NAME in .env")
+	// OTEL_SERVICE_VERSION
+	flag.StringVar(&op.serviceVersion, op.prefix+"-service-version", defaultVersion, "The service version must be the same release, e.g. 1.0.0")
 
-	// Check if the exporterOtlpEndpoint is empty
-	if op.exporterOtlpEndpoint == "" {
-		return errors.New("if OTEL_IS_ENABLED=true, then otel exporter otlp endpoint is not empty, e.g. http://localhost:4317")
-	}
+	// otel exporter
+	// OTEL_EXPORTER_OTLP_ENDPOINT
+	flag.StringVar(&op.exporterOtlpEndpoint, op.prefix+"-exporter-otlp-endpoint", defaultOtelEndpoint, "Otel otlp endpoint, e.g. http://localhost:4317")
+	// OTEL_EXPORTER_OTLP_PROTOCOL
+	flag.StringVar(&op.exporterOtlpProtocol, op.prefix+"-exporter-otlp-protocol", defaultOtelProtocol, "Otel protocol, e.g. http or grpc")
 
-	return nil
+	// otel features
+	flag.BoolVar(&op.isEnabledTrace, op.prefix+"-is-enabled-trace", true, "Enable otel trace")
+	flag.BoolVar(&op.isEnabledMetric, op.prefix+"-is-enabled-metric", true, "Enable otel metric")
+	flag.BoolVar(&op.isEnabledLog, op.prefix+"-is-enabled-log", true, "Enable otel log")
 }
 
 // Run runs the service.
@@ -335,6 +337,26 @@ func (op *OtelPlugin) Run() (err error) {
 	return nil
 }
 
+// Configure configures the service.
+func (op *OtelPlugin) Configure() error {
+	// Check if the servicename is empty
+	if op.serviceName == "" {
+		return errors.New("otel service name is empty")
+	}
+
+	// Check if the serviceversion is empty
+	if op.serviceVersion == "" {
+		return errors.New("otel service version is empty")
+	}
+
+	// Check if the exporterOtlpEndpoint is empty
+	if op.exporterOtlpEndpoint == "" {
+		return errors.New("if OTEL_IS_ENABLED=true, then otel exporter otlp endpoint is not empty, e.g. http://localhost:4317")
+	}
+
+	return nil
+}
+
 // Stop stops the service.
 func (op *OtelPlugin) Stop() <-chan bool {
 	c := make(chan bool)
@@ -348,26 +370,4 @@ func (op *OtelPlugin) Stop() <-chan bool {
 // GetPrefix returns the prefix of the service.
 func (op *OtelPlugin) GetPrefix() string {
 	return op.prefix
-}
-
-// InitFlags initializes the flags.
-func (op *OtelPlugin) InitFlags() {
-	flag.BoolVar(&op.isEnabled, op.prefix+"-is-enabled", defaultIsEnabled, "Enable otel service")
-
-	// otel attributes
-	// OTEL_SERVICE_NAME
-	flag.StringVar(&op.serviceName, op.prefix+"-service-name", defaultNameService, "Service name")
-	// OTEL_SERVICE_VERSION
-	flag.StringVar(&op.serviceVersion, op.prefix+"-service-version", defaultVersion, "Service version, e.g. 1.0.0")
-
-	// otel exporter
-	// OTEL_EXPORTER_OTLP_ENDPOINT
-	flag.StringVar(&op.exporterOtlpEndpoint, op.prefix+"-exporter-otlp-endpoint", defaultOtelEndpoint, "Otel otlp endpoint, e.g. http://localhost:4317")
-	// OTEL_EXPORTER_OTLP_PROTOCOL
-	flag.StringVar(&op.exporterOtlpProtocol, op.prefix+"-exporter-otlp-protocol", defaultOtelProtocol, "Otel protocol, e.g. http or grpc")
-
-	// otel features
-	flag.BoolVar(&op.isEnabledTrace, op.prefix+"-is-enabled-trace", true, "Enable otel trace")
-	flag.BoolVar(&op.isEnabledMetric, op.prefix+"-is-enabled-metric", true, "Enable otel metric")
-	flag.BoolVar(&op.isEnabledLog, op.prefix+"-is-enabled-log", true, "Enable otel log")
 }
