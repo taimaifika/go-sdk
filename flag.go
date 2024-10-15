@@ -6,6 +6,8 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/taimaifika/go-sdk/flagenv"
 )
 
 // isZeroValue guesses whether the string represents the zero
@@ -74,7 +76,11 @@ func (f *AppFlagSet) GetSampleEnvs() {
 	})
 }
 
+// Parse the flags
 func (f *AppFlagSet) Parse(args []string) {
+	// Copy from https://pkg.go.dev/github.com/facebookgo/flagenv@v0.0.0-20160425205200-fcd59fca7456
+	flagenv.Parse()
+
 	_ = f.FlagSet.Parse(args)
 }
 

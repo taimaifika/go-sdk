@@ -37,8 +37,6 @@ type Service interface {
 	ServiceContext
 	// Name of the service
 	Name() string
-	// Version of the service
-	Version() string
 	// Gin HTTP Server wrapper
 	HTTPServer() HttpServer
 	// Init with options, they can be db connections or
@@ -69,12 +67,12 @@ type ServiceContext interface {
 
 // Runnable is an abstract object in SDK
 // Almost components are Runnable. SDK will manage their lifecycle
-// InitFlags -> Configure -> Run -> Stop
+// InitFlags -> Run -> Configure -> Stop
 type Runnable interface {
 	Name() string
 	InitFlags()
-	Configure() error
 	Run() error
+	Configure() error
 	Stop() <-chan bool
 }
 

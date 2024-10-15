@@ -3,7 +3,6 @@ package goservice
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -19,11 +18,12 @@ const (
 	StgEnv     = "stg"
 	PrdEnv     = "prd"
 	DefaultEnv = DevEnv
+
+	DefaultName = ""
 )
 
 type service struct {
 	name         string
-	version      string
 	env          string
 	opts         []Option
 	subServices  []Runnable
@@ -33,7 +33,6 @@ type service struct {
 	httpServer   HttpServer
 	signalChan   chan os.Signal
 	cmdLine      *AppFlagSet
-	stopFunc     func()
 }
 
 func New(opts ...Option) Service {
@@ -52,12 +51,13 @@ func New(opts ...Option) Service {
 		opt(sv)
 	}
 
-	//// Http server
+	// Http server
 	httpServer := httpserver.New(sv.name)
 	sv.httpServer = httpServer
 
 	sv.subServices = append(sv.subServices, httpServer)
 
+	// Init flags
 	sv.initFlags()
 
 	if sv.name == "" {
@@ -72,17 +72,13 @@ func New(opts ...Option) Service {
 	sv.cmdLine = newFlagSet(sv.name, flag.CommandLine)
 	sv.parseFlags()
 
-	_ = loggerRunnable.Configure()
+	loggerRunnable.Configure()
 
 	return sv
 }
 
 func (s *service) Name() string {
 	return s.name
-}
-
-func (s *service) Version() string {
-	return s.version
 }
 
 func (s *service) Init() error {
@@ -102,7 +98,6 @@ func (s *service) IsRegistered() bool {
 func (s *service) Start() error {
 	signal.Notify(s.signalChan, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	c := s.run()
-	//s.stopFunc = s.activeRegistry()
 
 	for {
 		select {
@@ -127,7 +122,11 @@ func (s *service) Start() error {
 }
 
 func (s *service) initFlags() {
+	// app environment
 	flag.StringVar(&s.env, "app-env", DevEnv, "Env for service. Ex: dev | stg | prd")
+
+	// app name
+	flag.StringVar(&s.name, "app-name", DefaultName, "Name of the service, important name is not empty")
 
 	for _, subService := range s.subServices {
 		subService.InitFlags()
@@ -166,7 +165,6 @@ func (s *service) Stop() {
 		<-stopChan
 	}
 
-	//s.stopFunc()
 	s.logger.Infoln("service stopped")
 }
 
@@ -210,11 +208,6 @@ func WithName(name string) Option {
 	return func(s *service) { s.name = name }
 }
 
-// Every deployment needs a specific version
-func WithVersion(version string) Option {
-	return func(s *service) { s.version = version }
-}
-
 // Service will write log data to file with this option
 func WithFileLogger() Option {
 	return func(s *service) {
@@ -233,7 +226,7 @@ func WithRunnable(r Runnable) Option {
 func WithInitRunnable(r PrefixRunnable) Option {
 	return func(s *service) {
 		if _, ok := s.initServices[r.GetPrefix()]; ok {
-			log.Fatal(fmt.Sprintf("prefix %s is duplicated", r.GetPrefix()))
+			panic(fmt.Sprintf("prefix %s is duplicated", r.GetPrefix()))
 		}
 
 		s.initServices[r.GetPrefix()] = r

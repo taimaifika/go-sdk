@@ -75,6 +75,7 @@ func (gdb *gormDB) isDisabled() bool {
 
 func (gdb *gormDB) Configure() error {
 	if gdb.isDisabled() || gdb.isRunning {
+		logger.GetCurrent().GetLogger(gdb.name).Errorln("Gorm DB is disabled or already running")
 		return nil
 	}
 

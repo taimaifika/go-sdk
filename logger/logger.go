@@ -5,10 +5,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"log"
 	"runtime"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Fields logrus.Fields
@@ -23,6 +24,7 @@ func InitServLogger(allowFileLogger bool) {
 	}
 }
 
+// GetLogger returns a logger with the given name.
 func GetCurrent() ServiceLogger {
 	return currentServLog
 }
@@ -64,6 +66,7 @@ type logger struct {
 	*logrus.Entry
 }
 
+// ServiceLogger is a logger for the service.
 func (l *logger) GetLevel() string {
 	return l.Entry.Logger.Level.String()
 }
@@ -85,42 +88,50 @@ func (l *logger) debugSrc() *logrus.Entry {
 	return l.Entry.WithField("source", fmt.Sprintf("%s:%d", file, line))
 }
 
+// Debug logs a message at level Debug on the standard logger.
 func (l *logger) Debug(args ...interface{}) {
 	if l.Entry.Logger.Level >= logrus.DebugLevel {
 		l.debugSrc().Debug(args...)
 	}
 }
 
+// Debugln logs a message at level Debug on the standard logger.
 func (l *logger) Debugln(args ...interface{}) {
 	if l.Entry.Logger.Level >= logrus.DebugLevel {
 		l.debugSrc().Debugln(args...)
 	}
 }
 
+// Debugf logs a message at level Debug on the standard logger.
 func (l *logger) Debugf(format string, args ...interface{}) {
 	if l.Entry.Logger.Level >= logrus.DebugLevel {
 		l.debugSrc().Debugf(format, args...)
 	}
 }
 
+// Print logs a message at level Debug on the standard logger.
 func (l *logger) Print(args ...interface{}) {
 	if l.Entry.Logger.Level >= logrus.DebugLevel {
-		l.debugSrc().Debug(args)
+		l.debugSrc().Debug(args...)
 	}
 }
 
+// With returns a new logger with the given key and value.
 func (l *logger) With(key string, value interface{}) Logger {
 	return &logger{l.Entry.WithField(key, value)}
 }
 
+// Withs returns a new logger with the given fields.
 func (l *logger) Withs(fields Fields) Logger {
 	return &logger{l.Entry.WithFields(logrus.Fields(fields))}
 }
 
+// WithSrc returns a new logger with the source field.
 func (l *logger) WithSrc() Logger {
 	return &logger{l.debugSrc()}
 }
 
+// mustParseLevel parses a log level string and returns the corresponding logrus log level.
 func mustParseLevel(level string) logrus.Level {
 	lv, err := logrus.ParseLevel(level)
 	if err != nil {
